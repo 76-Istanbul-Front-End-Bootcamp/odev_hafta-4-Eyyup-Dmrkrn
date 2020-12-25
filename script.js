@@ -1,7 +1,10 @@
+/* Hocam, aşağıda yazdığım kod istenilenleri doğru bir şekilde çalıştırıyor. Fakat, Opsiyonel olarak belirttiğiniz tasarım kısımlarına pek vakit ayıramadım. Haftasonları müsait oluyorum. Teslim ettikten sonra tasarım kısmıyla da oynayacağımdan emin olabilirsiniz. */
+
 const data = {
-  USD: {EUR: 0.82, GBP: 0.74},
-  EUR: {USD: 1.23, GBP: 0.91},
-  GBP: {USD: 1.35, EUR: 1.10},
+  USD: {EUR: 0.82, GBP: 0.74, TR:7.56},
+  EUR: {USD: 1.23, GBP: 0.91, TR:9.23},
+  GBP: {USD: 1.35, EUR: 1.10, TR:10.30},
+  TR:  {USD: 0.13, EUR: 0.11, GBP:0.097}   // Yeni para birimi eklendi.
 };
 
 const currencyKeys = Object.keys(data);
@@ -38,17 +41,43 @@ createCurrencyElements(currencyKeys, parentToEl, toInputName);
 
 const calculateButton = document.querySelector("#calculate-button");
 calculateButton.addEventListener("click", function(){
-   // kimden ceviriyourz
-   const fromTarget = document.querySelector("input[name='currency_from']:checked").value;
-   // kime ceviriyoruz
-   const toTarget   = document.querySelector("input[name='currency_to']:checked").value;
-   // amountu alalim
-   const amount     = document.querySelector("input[name='amount']").value;
+    let fromTarget = document.querySelector("input[name='currency_from']:checked");
+    let toTarget   = document.querySelector("input[name='currency_to']:checked");
+    const amount   = document.querySelector("input[name='amount']").value;
 
-   const currentCurrencyObject = data[fromTarget];
-   const resultForOne = currentCurrencyObject[toTarget];
-   const result = amount * resultForOne;
+    // controlFunc ile istenilen tüm durumları ele alan bir fonksiyon oluşturuldu.
+    function controlFunc(fromTarget, toTarget, amount){
+    // Seçim yapılmama durumlarını kontrol eden iç içe if bloğu oluşturuldu.
+    if(fromTarget){
+          fromTarget=fromTarget.value;
+      if(toTarget){
+          toTarget=toTarget.value;
+      }else{
+        alert("Hangi para birimine çevirmek istediğinizi de seçin.")
+        calculateButton();  // Uyarı verildikten sonra tekrar seçim yapmasını sağlamak için fonksiyon tekrar çağırıldı.
+      }
+    }else{
+      alert("Çevrilecek para birimini de seçin.")
+      calculateButton();
+    } 
+    // Aynı para biriminin seçilme durumunu kontrol eden if bloğu
+    if(fromTarget==toTarget)
+    {
+      alert("Aynı para birimlerini seçmeyin.")
+      calculateButton();
+    }
+    // amount olarak sayının girilmeme durumunu kontrol eden if bloğu oluşturuldu.
+    if (isNaN(amount)) {
+        alert("Çevirmek istediğiniz para miktarını sayı olarak girin.");
+        calculateButton();
+    }
+    
+    const currentCurrencyObject = data[fromTarget];
+    const resultForOne = currentCurrencyObject[toTarget];
+    const result = amount * resultForOne;
+    const currencyResult = document.querySelector("#currency-result");
 
-   const currencyResult = document.querySelector("#currency-result");
-   currencyResult.innerHTML = amount + " " + fromTarget + " = " + result + " " + toTarget;
+    currencyResult.innerHTML = amount + " " + fromTarget + " = " + result + " " + toTarget;
+  }
+    controlFunc(fromTarget,toTarget, amount); // oluşturulan control fonksiyonu çağırıldı.
 });
